@@ -1,0 +1,23 @@
+/*
+* Copyright (c) Microsoft Corporation. All rights reserved.
+*/
+
+#embedContainer > iframe {
+    border: none;
+}
+
+body {
+    height: 100%;
+    margin: 0;
+}
+
+html {
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+}
+
+#embedContainer {
+    height: 100%;
+    overflow: hidden;
+}

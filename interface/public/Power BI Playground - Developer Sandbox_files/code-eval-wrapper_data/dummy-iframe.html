@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"></head><body>
+    <script>
+        window.addEventListener('message', receiveMessage, false);
+
+        
+        function receiveMessage(event) {
+            if (event.data) {
+                try {
+                    var messageData;
+                    try {
+                        messageData = JSON.parse(event.data);
+                    } catch (e) {
+                        messageData = event.data;
+                    }
+
+                    event.data.source = "dummy-iframe";
+
+                    
+                    event.data.headers.originalId = event.data.headers.id;
+                    event.data.headers.id = "";
+                    window.parent.postMessage(event.data, '*');
+                }
+                catch (e) {
+                    console.error(e);
+                }
+            }
+        }
+    </script>
+
+</body></html>

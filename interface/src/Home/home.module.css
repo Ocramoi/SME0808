@@ -1,0 +1,37 @@
+.home {
+    width: 100%;
+    text-align: center;
+    max-width: 1200px;
+    padding: 1em;
+}
+
+.home > h2 {
+    color: var(--main-bg-color);
+}
+
+.homeText {
+    text-align: justify;
+}
+
+.home li {
+    font-style: italic;
+}
+
+.linkButton {
+    background-color: var(--main-bg-color);
+    color: var(--main-accent-color);
+}
+
+.linkButton > a {
+    color: currentColor;
+    text-decoration: none;
+}
+
+.buttonCollection {
+    max-width: 700px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 1em;
+}

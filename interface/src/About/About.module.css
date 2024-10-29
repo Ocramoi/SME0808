@@ -1,0 +1,45 @@
+.about {
+    width: 100%;
+    max-width: 1500px;
+    align-self: center;
+    margin: 0 1em 1em 1em;
+    padding-top: 1em;
+}
+
+.about h2 {
+    color: var(--main-bg-color) !important;
+    font-weight: bold;
+}
+
+.about img {
+    width: 100%;
+    max-width: 800px;
+}
+
+table {
+    border-spacing: 1em;
+}
+
+tbody {
+    text-align: justify;
+}
+
+.about td, th {
+    padding: 5px;
+}
+
+table, th, td {
+    border: 1px solid var(--main-bg-color) !important;
+}
+
+.about a {
+  color: var(--main-bg-color) !important;
+  font-style: italic;
+  text-decoration: none !important;
+  font-weight: bold;
+}
+
+.about a:hover {
+  font-size: 1.05em;
+  transition-duration: 0.2s;
+}

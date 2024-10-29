@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"></head><body onload="onWindowLoad();">
+    <div id="embedContainer"><iframe style="width: 100%; height: 100%;" src="code-eval-wrapper_data/dummy-iframe.html" scrolling="no" allowfullscreen="true"></iframe></div>
+    
+    <script src="code-eval-wrapper_data/jquery.js"></script>
+    <script nomodule="" src="code-eval-mirror_data/es6-promise.js"></script>
+    <script src="code-eval-mirror_data/powerbi.js"></script>
+    <script src="code-eval-mirror_data/powerbi-report-authoring.js"></script>
+    <script src="code-eval-mirror_data/models.js"></script>
+    <script type="text/javascript">
+        var tenantErrorMessage = "TenantNotAllowed";
+        var embedConfigMockValue = 'mockValue'; 
+        var EMBED_ACCESS_TOKEN = embedConfigMockValue;
+        var EMBED_URL = embedConfigMockValue;
+        var REPORT_ID = embedConfigMockValue;
+        var DASHBOARD_ID = embedConfigMockValue;
+        var TILE_ID = embedConfigMockValue;
+        var DATASET_ID = embedConfigMockValue;
+        var PAGE_NAME = embedConfigMockValue;
+        var VISUAL_NAME = embedConfigMockValue;
+        var TOKEN_TYPE = embedConfigMockValue;
+
+        var report;
+        var paginatedReport;
+        var visual;
+        var dashboard;
+        var tile;
+        var authoringPage;
+        var lastCreatedVisual;
+        var playgroundOrigin = 'https://playground.powerbi.com';
+    </script>
+
+    <script>
+        window.addEventListener('message', receiveMessage, false);
+        window.addEventListener('error', function (error) {
+            if (error && error.detail && error.detail.message == tenantErrorMessage) {
+                window.parent.postMessage({
+                    source: "code-eval-wrapper",
+                    errorMessage: tenantErrorMessage
+                }, playgroundOrigin);
+            }
+        }, false);
+        overrideSdkFunctions();
+        var embedUrl;
+
+        
+        function receiveMessage(event) {
+            if (event.data) {
+                try {
+                    var messageData;
+                    try {
+                        messageData = JSON.parse(event.data);
+                    } catch (e) {
+                        messageData = event.data;
+                    }
+
+                    if (messageData.source == "dev-sandbox" && event.origin === playgroundOrigin && event.source === window.parent) {
+                        var messageBody = messageData.body;
+                        if (messageBody && messageBody.cleanEvents) {
+                            cleanEvents();
+                        }
+
+                        
+                        eval(messageBody.code);
+                    }
+
+                    
+                    if (messageData.source == "dummy-iframe" && event.source === window.child?.contentWindow) {
+                        resetAuthoringIfNeeded(messageData);
+
+                        messageData.source = "code-eval-wrapper";
+                        window.parent.postMessage(messageData, playgroundOrigin);
+                    }
+
+                    
+                    else if (messageData.source == "code-eval-mirror" && event.origin === playgroundOrigin && event.source.parent === window.parent) {
+                        let matchedObjects = powerbi.embeds.filter(a => a.config.uniqueId === messageData.args.id);
+                        if (matchedObjects && matchedObjects.length > 0) {
+                            matchedObjects[0].service.handleEvent(messageData.args);
+                        }
+                    }
+                }
+                catch (e) {
+                    console.error(e);
+                }
+            }
+        }
+
+        function resetAuthoringIfNeeded(message) {
+            if (!message || !message.url) {
+                return;
+            }
+
+            const embeddingCommandsURLs = ['/report/load', '/report/prepare', '/report/create'];
+            const command = embeddingCommandsURLs.find(c => c.toUpperCase() === message.url.toUpperCase())
+            if (command) {
+                lastCreatedVisual = null;
+                authoringPage = null;
+            }
+        }
+
+        function setupHtmlElementMocks() {
+            var appendChildOrg = Element.prototype.appendChild;
+
+            
+            Element.prototype.appendChild = function () {
+                child = arguments[0];
+                if (child && child.src) {
+                    embedUrl = child.src;
+                    child.src = "dummy-iframe";
+                }
+
+                appendChildOrg.apply(this, arguments);
+
+                if (embedUrl) {
+                    window.parent.postMessage({
+                        target: "embedContainer",
+                        method: "appendChild",
+                        source: "code-eval-wrapper",
+                        embedUrl: embedUrl
+                    }, playgroundOrigin);
+                }
+            };
+        }
+
+        function onWindowLoad() {
+            setupHtmlElementMocks();
+            sendReadyMessage();
+        }
+
+        function sendReadyMessage() {
+            const readyMessage = {
+                source: "code-eval-wrapper",
+                ready: true
+            };
+            window.parent.postMessage(readyMessage, playgroundOrigin);
+        }
+
+        
+        function SetAuthoringPageActive(report) {
+            return new Promise(function (resolve, reject) {
+
+                // Get all report pages
+                report.getPages().then(function (pages) {
+
+                    // Find authoring page
+                    var authoringPage = pages.filter(function (page) {
+                        return page.name === "ReportSection6da8317ad6cbcae5b3bb";
+                    })[0];
+
+                    // If active page is not authoring page, navigate to authoring page
+                    if (authoringPage.isActive) {
+                        resolve(authoringPage);
+                    } else {
+                        authoringPage.setActive().then(function () {
+                            console.log("Page was set to authoring page.");
+                            resolve(authoringPage);
+                        }).catch(function (errors) {
+                            reject(errors);
+                        });
+                    }
+                }).catch(function (errors) {
+                    reject(errors);
+                });
+            });
+        }
+
+        function cleanEvents() {
+            try {
+                var container = $('#embedContainer')[0];
+                if (container && container.children && container.children.length > 0) {
+                    var embedObject = powerbi.get(container);
+                    if (embedObject && embedObject.allowedEvents && embedObject.allowedEvents.length > 0) {
+                        const eventsList = ["bookmarkApplied", "buttonClicked", "commandTriggered", "dataHyperlinkClicked", "dataSelected", "loaded",
+                            "pageChanged", "rendered", "saveAsTriggered", "saved", "selectionChanged", "visualRendered", "visualClicked"];
+                        eventsList.forEach(eventName => embedObject.off(eventName));
+                    }
+                }
+            } catch (e) {
+                console.error('failed to clean events');
+            }
+        }
+
+        function overrideSdkFunctions() {
+            window["powerbi-client"].Embed.prototype.fullscreen = function () {
+                window.parent.postMessage({
+                    source: "code-eval-wrapper",
+                    target: "Embed",
+                    method: "fullScreen",
+                    args: arguments[0]
+                }, playgroundOrigin);
+            };
+
+            window["powerbi-client"].Embed.prototype.exitFullscreen = function () {
+                window.parent.postMessage({
+                    source: "code-eval-wrapper",
+                    target: "Embed",
+                    method: "exitFullscreen",
+                    args: arguments[0]
+                }, playgroundOrigin);
+            };
+
+            
+            var serviceClass = window["powerbi-client"].service.Service;
+            var originalResetFunction = serviceClass.prototype.reset;
+            serviceClass.prototype.reset = function (element) {
+                originalResetFunction.apply(this, arguments);
+                window.parent.postMessage({
+                    source: "code-eval-wrapper",
+                    target: "Service",
+                    method: "reset",
+                }, playgroundOrigin);
+            };
+        }
+    </script>
+
+</body></html>
