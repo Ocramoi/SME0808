@@ -10,14 +10,50 @@
     flex: 1 0;
 }
 
-.filters {
+.filterSidebar {
     /* height: 100%; */
     background-color: var(--main-bg-color);
     padding: 1em;
     flex: 0 0 auto;
 }
 
+.filters {
+    /* height: 100%; */
+    background-color: var(--main-bg-color);
+    padding: 1em;
+    flex: 1 0 auto;
+}
+
 .filters > span {
     color: var(--main-accent-color);
     font-weight: bold;
+}
+
+.controlGroup {
+    margin-top: 1.5rem !important;
+    color: var(--main-accent-color) !important;
+}
+
+.updateBut {
+    margin-top: 0.5rem !important;
+    background-color: var(--main-accent-color) !important;
+    color: var(--main-bg-color) !important;
+}
+
+.filterOpen {
+    color: var(--main-accent-color);
+}
+
+.filterOpen:hover {
+    transform: scale(1.1);
+    transition: 0.1s;
+}
+
+.filterDrawer {
+    align-items: stretch;
+}
+
+.filters a {
+    color: currentColor;
+    font-style: italic;
 }

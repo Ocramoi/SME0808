@@ -1,57 +1,210 @@
-import { FC, useEffect, useState} from 'react';
-import { Box } from '@mui/material';
-import { models, Embed, Report as BIReport } from 'powerbi-client';
+import { FC, useEffect, useState, ChangeEvent } from 'react';
+import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField, Button, Drawer } from '@mui/material';
+import UpdateIcon from '@mui/icons-material/Update';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import { models, Embed } from 'powerbi-client';
 import { PowerBIEmbed } from 'powerbi-client-react';
 import styles from './report.module.css';
-import axios from 'axios';
 
 export const Report: FC = () => {
     const reportId = "5b857eb4-8437-4f23-b560-ee05e9097549",
-          reportToken = "H4sIAAAAAAAEACXUt86sVgAE4Hf5WyyRk6VbkHNOCx2wh7zEJVp-d1_b_VTfaOavHze_hyl___z5Q4dC0JCJwSgwzOdbfmuhIOpjlV2EtvCvqc4CbzBMMLLDeZkX9aLOW1-tTzH7nWxQtLvGe0wdvGX6HfVNZLrg3XszQAWJ7t0Ema5ckqiqROx0D8vFOTHTwaERAZMa9cvaFPDONxVCfd5yBcuLGrV065l9iAf2lI6S1TowQ9iVbTZtT4xS5vxzWYXevFyVELaRVNKHIbpkZx2exzSc_1i9JTMVeMbrHATMgIz6yLYM1-Reg0wn_EotnjIPgTtOIUifkA0jcfc7tRr7swzFPehDapEuuYQ9QK9LVtOlO7S1qMUoilvMRJ0maOHDA9IKZy9GcTSVmhyNYl08UF9itOMXoygpHb-FBuqqSSYjTdVGZmltLbEjl61KJ9oyRR29xcEANOFTdOZHOLi0pIUUVBIIE3_LmH3IYWwWynUvwLXYyZzmCJeWPrhZTc3tsp5fr8uU3gpHoDT0SFP4jSmTVefjfbyZHrtPrCuypgNB4iiMTkPlBM0UnNfVh1K3Ml2m1CE_90uf7Ss2XKPBgWv4VtE2Ol4yVQgNyR2OtyaJzjsAaS3SXLEWl8oS7qCxmfJdA6rJyIKZjly4MlIfD9TVCGAa5KXNGECzqdettDOhYinRCmkC80qrwX4QfrxTT7Najcy8VM5g9C0CXlr4ZhB7_uqNpnG-u5oBy-xDm2UgZIE_sS_MYjn3qHnD-DV0oA6zx4WUgBX5xCQsaGf3pqs5j9qDxVO_11ewweKK3oDXSxDeLR4dwek1bV3JC4JKBFxBFJ4aHzbZjqm42zC4WfWAUHRFiYj2Hnt9r-VEc6iDqggWhpEp9r9-_vgR1nv-Tga4f0-Hx_xa1gfHmBUX1TlZDAFwkZxL11nDQurWBU6j562u-gElVX_jyjk8hyTwh7q9SAwFobUh41vEb8SlJt0UbZBKL7ipL6Oc7TZ6r-6bA7KJBCQVc-uTFoVV31f0DukCe-t76IknhJK-CpJ33s2eguwdz684mahYQLfmKDcS6KDyoBiRczB98vFWj2WgA-zu0F7bqbFnum9Jl2fDCI8xKcGLirdnOA8ucb2Izu52CpJl8vdydf185Iz42Grs0SXTbV9K8TKiUFCLfibIV0sxOcENhf-NWvvhFTjRZ_-IkZLIbJtNHKHXnVJYVK-nMjrbbxR0vc0kxFKu-DlJkHUKDaC74Pz1H_M9N2DV4t_K4D5v9GwX3dE-EdYEFdycx_-poK3H_Luv4N8yDuIWoMByvnMgEVL15ptS7x-EauVGY2VWrsICXMZXTSBxHl906vYsSjTQ2RgrUuR33xlFA2N5OdMi0mCso2pzeCULu7JnDA1PBjlzFrsH9uFeRtaVCNyL9ubOXGwIJr-NB50SrYWq69d32Q3fhNuOkTrl-bjs1fCzM_ZKt88-Z1GwPqrgsohVhBb2qTu5S_NZPBB21Mpb3FeRqtIo3GYkuLG3se2jjCvjgecUXATFs5iKrGCDpJp4i0DYm6MhVBrtzrJwaCQ5C5JHr0k_efX70_lFqBw0SIpEF3w1aby71UTFTFPwxXRS2GenRjW9UWXE7t0ITx3_fLK0D2TSwa25kKR_mf_-BzUNjZouBgAA.eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly9XQUJJLUJSQVpJTC1TT1VUSC1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldCIsImV4cCI6MTczMDI0OTA4MSwiYWxsb3dBY2Nlc3NPdmVyUHVibGljSW50ZXJuZXQiOnRydWV9";
+          pVariables = [
+              'Temperatura Média (C°)',
+              'Precipitação Média (mm)',
+              'Radiação Média (KJ/m²)',
+          ],
+          cities = [
+              'Todas',
+              'Brasília - DF',
+              'Manaus - AM',
+              'Porto Alegre - RS',
+              'Rio de Janeiro - RJ',
+              'Salvador - BA',
+          ],
+          reportUrl = `https://app.powerbi.com/reportEmbed?reportId=${reportId}`;
 
-    const [report, setReport] = useState<BIReport>();
+    const [reportToken, setReportToken] = useState(
+        "H4sIAAAAAAAEAB2Tx66DVgAF_-VtiUQ1cCNlQTWYbjAYdvTeywWi_Htesp-zmaP5-8eOr26Ms58_f8gz-GY-NnYnCMA05APR98IcRHOKoTY4Sx7REuWYcmnC5dUUT1_AXfqph8pFsUbRZoBV5lDY1aiEFxotpXYBZLLasDE9WcHE5tyR7hPIRY69RtpJhwHZJ5vx9dllh7C_uN6v8ZXTWnEVF3GXTnPeQw05WyYH9xEybui90rkWqPwFywd_2h6fdsVJA76mAHWbUmCRlW5Z1n0GypWdlcABdOkjq7_23LPKQWsvO71PPDxEPoxGZ2f68qz3zClwuj5JqJpLO9nf_GRFM5HeV3pDLV5UXk2OZANpghANMxygiVy6NWnSfeTe8fl4SJhMus6sUUGuAke2TKhDFXML6N_reyvMZbfxGtPf_L0MAAAi7v3gxAQGidFTqmEzRtEQLmXgY8yYPgkQiO8EMd4LeuK6hpo4V8G2Qp4K8Q2vIatBFvbetc5JYN8mWvFDbIJb5R79Wj75CCOlzqzBEgxfAzapFUdJZrUrHuL5cxuJF990By_78S3IWqOGBaJJdS-oemcFREhKqq5FtrUU_lGORM0q3-2WRptTHy6eHTA2zmcyRtiOREuyEqllv9LqUoPPGGi6G2jUc08kDb7X7A4ZHIly6rpa2JIklxHOiWJ912O4SldOSVLF5hZ7OJlqVMiOqGpxlbN1718IczaqHqji14YWqazCxg8bttCY67Ybx5wDs2KjvsanOKrofPEEiW-QfMx-_W6lkPKIRkDr99uoX4T7qGDVtVC5WdFJAw5Iw3MtU7JmSFnxetkg_AxfmvG720Bw1pvCKzHvjM-7jBKSbafttQW4moCq_1xfkXMYX4jJlfHl8fPXzx8_wnJN26jl1286EShztpGuTy1xSI52zIHTcbHRG2FiMSBNYtQn-lHnb0p-s2nGmDE6pxcCitXS8JHi8B0ONWfpHOJav6tNbYx0WxLSPVZz6VZfIHVqZgQB3eVyK6hHe4dNeZfOuKaAjrfK58iY2xnpOIOu6w_u3lfw4OzKt1ApoAa4bg83bSJAW7-RHL2KpxPTxpFpOgLBaY9F3kcTptXzK7Bp4_IgnQ34zacJlvz5WvPDNxfop5crylSpYv6j-jIRilZrTg9PM1MiJbyeZ66IVDOCl-eRmrQTwfhRjYqdWi0HLz_hkcsf0pqdosTwRh1Vp2p2jO35kVEDDPJJf8eRcpunlci3EESSU5V__a_5mqp8Uf1fy8fXK5b6NLJZO-t6T0V7tkvnf8qtyyHe9iX_xewe-2p3MCpCLJ_-y3_jQoXAKIb5Is-chQrBjXtObOTkAMNHgC18w6HZ_FlCI9ic0isfixRpkqp0VYdCvpPMsFVYddnnRvXfsInvmofE-IEk_a0RpvQ8ngU0GvMoahYNUQNJQStz7nmTUC6Vy8PRWs01oabRlu7GcZn8kxVECXKgd9Okfo7XUan6k9DHb4fyQRUcm14dEwO3Z9yXhyOaRNNjKixUlcdwO4w_e3lZm32-FNfo7Atr22bHtnRDAYsfwv5gjgQfXwsLC1tBV8ENdgn7suklHBzmEjgBZrYISUM1ki3OE5OZhtd6-RWUszSNVrxuLqNZGxogrS72cB9ZFD7-O-OffwGDwfspLgYAAA==.eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly9XQUJJLUJSQVpJTC1TT1VUSC1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldCIsImV4cCI6MTczMjUxNTg0OCwiYWxsb3dBY2Nlc3NPdmVyUHVibGljSW50ZXJuZXQiOnRydWV9",
+    );
+    const [embed, setEmbed] = useState<Embed>();
+    const [filterOpen, setFilterOpen] = useState(false);
+    const [pVariable, setPVariable] = useState(pVariables[0]);
+    const [city, setCity] = useState<string>(cities[0]);
     const [reportConfig, setReportConfig] = useState<models.IReportEmbedConfiguration>({
         type: 'report',
-        embedUrl: `https://app.powerbi.com/reportEmbed?reportId=${reportId}&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly9XQUJJLUJSQVpJTC1TT1VUSC1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldCIsImVtYmVkRmVhdHVyZXMiOnsidXNhZ2VNZXRyaWNzVk5leHQiOnRydWV9fQ%3d%3d`,
+        embedUrl: reportUrl,
         accessToken: reportToken,
         id: reportId,
         tokenType: models.TokenType.Embed,
         settings: {
             panes: {
+                pageNavigation: {
+                    visible: false,
+                },
                 filters: {
                     expanded: false,
                     visible: false,
                 }
             },
             background: models.BackgroundType.Transparent,
-        }
+        },
+        filters: [
+            {
+                $schema: "https://powerbi.com/product/schema#basic",
+                target: {
+                    table: "P_Variables",
+                    column: "P_Variables"
+                },
+                //@ts-ignore
+                operator: "is",
+                values: [ pVariable ],
+                filterType: models.FilterType.Basic,
+                requireSingleSelection: true
+            },
+        ]
     });
 
-    useEffect(() => {
-        if (!report)
-            return;
-        console.log(report);
-    }, [ report ]);
+    function changeP(event: SelectChangeEvent) {
+        setPVariable(event.target.value);
+    }
+
+    function changeCity(event: SelectChangeEvent) {
+        setCity(event.target.value);
+    }
+
+    function changeToken(event: ChangeEvent<HTMLInputElement>) {
+        setReportToken(event.target.value);
+    }
+
+    async function setGlobalFilters() {
+        setReportConfig({
+            ...reportConfig,
+            filters: [
+                {
+                    $schema: "https://powerbi.com/product/schema#basic",
+                    target: {
+                        table: "P_Variables",
+                        column: "P_Variables"
+                    },
+                    //@ts-ignore
+                    operator: "is",
+                    values: [ pVariable ],
+                    filterType: models.FilterType.Basic,
+                    requireSingleSelection: true
+                },
+                {
+                    $schema: "https://powerbi.com/product/schema#basic",
+                    target: {
+                        table: "Data",
+                        column: "Cidade"
+                    },
+                    //@ts-ignore
+                    operator: "is",
+                    values: city !== cities[0] ? [ city ] : cities.slice(1),
+                    filterType: models.FilterType.Basic,
+                    requireSingleSelection: true
+                }
+            ],
+        });
+        embed?.configChanged(true);
+    }
+
+    useEffect(
+        () => {
+            setGlobalFilters();
+        },
+        [ pVariable, city ]
+    )
+
+    async function updateReportToken() {
+        setReportConfig({
+            ...reportConfig,
+            accessToken: reportToken,
+        });
+        embed?.configChanged(true);
+    }
 
     return (
         <Box className={ styles.report }>
-            <Box component="div" className={ styles.filters }>
-                <span>Filtros:</span>
+            <Box component="div" className={ styles.filterSidebar }>
+                <Button
+                    onClick={ () => setFilterOpen(true) }
+                    variant="text"
+                    className={ styles.filterOpen }
+                    endIcon={ <KeyboardArrowRightIcon /> }>
+                    Filtros
+                </Button>
             </Box>
+            <Drawer
+                sx={{
+                    backgroundColor: 'transparent',
+                    alignItems: 'stretch',
+                    flexDirection: 'column',
+                }}
+                open={filterOpen}
+                onClose={ () => setFilterOpen(false) }
+            >
+                <Box component="div" className={ styles.filters }>
+                    <span>Filtros:</span>
+
+                    <FormControl fullWidth className={ styles.controlGroup }>
+                        <InputLabel>Variável de análise:</InputLabel>
+                        <Select
+                            value={`${pVariable}`}
+                            label="Variável de análise"
+                            onChange={changeP}
+                        >
+                            {
+                                pVariables.map(v => (
+                                    <MenuItem key={v} value={v}>{v}</MenuItem>
+                                ))
+                            }
+                        </Select>
+                    </FormControl>
+
+                    <FormControl fullWidth className={ styles.controlGroup }>
+                        <InputLabel>Cidade:</InputLabel>
+                        <Select
+                            value={`${city}`}
+                            label="Cidade analisada"
+                            onChange={changeCity}
+                        >
+                            {
+                                cities.map(v => (
+                                    <MenuItem key={v} value={v}>{v}</MenuItem>
+                                ))
+                            }
+                        </Select>
+                    </FormControl>
+
+                    <br />
+                    <br />
+                    <span><a href="https://learn.microsoft.com/en-us/rest/api/power-bi/embed-token/generate-token#code-try-0">Token de acesso:</a></span>
+                    <FormControl fullWidth>
+                        <TextField value={reportToken} onChange={changeToken}></TextField>
+                        <Button
+                            variant="contained"
+                            startIcon={ <UpdateIcon /> }
+                            className={ styles.updateBut }
+                            onClick={ updateReportToken }
+                        >Atualizar token</Button>
+                    </FormControl>
+                </Box>
+            </Drawer>
             <PowerBIEmbed
                 embedConfig={ reportConfig }
                 eventHandlers = {
                 new Map([
-                    ['loaded', function () {console.log('Report loaded');}],
+                    ['loaded', () => console.log("Report loaded")],
                     ['rendered', function () {console.log('Report rendered');}],
                     ['error', function (event: any) {console.log(event?.detail);}],
                     ['visualClicked', () => console.log('visual clicked')],
-                    ['pageChanged', (event) => console.log(event)],
+                    ['pageChanged', (event: any) => console.log(event)],
                 ])
                 }
                 getEmbeddedComponent={(embedObject: Embed) => {
                     console.log(`Embedded object of type "${ embedObject.embedtype }" received`);
-                    setReport(embedObject as BIReport);
+                    setEmbed(embedObject);
                 }}
                 cssClassName={ styles.reportIframe }
             />

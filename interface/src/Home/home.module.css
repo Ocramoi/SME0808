@@ -18,8 +18,8 @@
 }
 
 .linkButton {
-    background-color: var(--main-bg-color);
-    color: var(--main-accent-color);
+    background-color: var(--main-bg-color) !important;
+    color: var(--main-accent-color) !important;
 }
 
 .linkButton > a {
