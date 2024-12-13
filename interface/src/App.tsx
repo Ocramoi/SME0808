@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Link, Route, Routes } from 'react-router-dom';
 import { Home } from './Home/Home';
 import { About } from './About/About';
 import { Report } from './Report/Report';
+import { Analysis } from './Analysis/Analysis';
 import AppBar from '@mui/material/AppBar';
 import MenuIcon from '@mui/icons-material/Menu';
 import TimelineIcon from '@mui/icons-material/Timeline';
@@ -27,6 +28,7 @@ function App(): JSX.Element {
     { name: "Início", path: "/" },
     { name: "Relatório", path: "/relatorio" },
     { name: "Sobre", path: "/sobre" },
+    { name: "Análises", path: "/analises" },
   ];
 
   return (
@@ -123,6 +125,7 @@ function App(): JSX.Element {
             <Route path="/" Component={Home} />
             <Route path="/relatorio" Component={Report} />
             <Route path="/sobre" Component={About} />
+            <Route path="/analises" Component={Analysis} />
           </Routes>
         </div>
 

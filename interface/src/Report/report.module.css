@@ -11,10 +11,9 @@
 }
 
 .filterSidebar {
-    /* height: 100%; */
     background-color: var(--main-bg-color);
-    padding: 1em;
-    flex: 0 0 auto;
+    flex: 0 0 min-content;
+    display: flex;
 }
 
 .filters {

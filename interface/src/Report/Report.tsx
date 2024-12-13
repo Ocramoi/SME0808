@@ -24,10 +24,11 @@ export const Report: FC = () => {
           reportUrl = `https://app.powerbi.com/reportEmbed?reportId=${reportId}`;
 
     const [reportToken, setReportToken] = useState(
-        "H4sIAAAAAAAEAB2Tx66DVgAF_-VtiUQ1cCNlQTWYbjAYdvTeywWi_Htesp-zmaP5-8eOr26Ms58_f8gz-GY-NnYnCMA05APR98IcRHOKoTY4Sx7REuWYcmnC5dUUT1_AXfqph8pFsUbRZoBV5lDY1aiEFxotpXYBZLLasDE9WcHE5tyR7hPIRY69RtpJhwHZJ5vx9dllh7C_uN6v8ZXTWnEVF3GXTnPeQw05WyYH9xEybui90rkWqPwFywd_2h6fdsVJA76mAHWbUmCRlW5Z1n0GypWdlcABdOkjq7_23LPKQWsvO71PPDxEPoxGZ2f68qz3zClwuj5JqJpLO9nf_GRFM5HeV3pDLV5UXk2OZANpghANMxygiVy6NWnSfeTe8fl4SJhMus6sUUGuAke2TKhDFXML6N_reyvMZbfxGtPf_L0MAAAi7v3gxAQGidFTqmEzRtEQLmXgY8yYPgkQiO8EMd4LeuK6hpo4V8G2Qp4K8Q2vIatBFvbetc5JYN8mWvFDbIJb5R79Wj75CCOlzqzBEgxfAzapFUdJZrUrHuL5cxuJF990By_78S3IWqOGBaJJdS-oemcFREhKqq5FtrUU_lGORM0q3-2WRptTHy6eHTA2zmcyRtiOREuyEqllv9LqUoPPGGi6G2jUc08kDb7X7A4ZHIly6rpa2JIklxHOiWJ912O4SldOSVLF5hZ7OJlqVMiOqGpxlbN1718IczaqHqji14YWqazCxg8bttCY67Ybx5wDs2KjvsanOKrofPEEiW-QfMx-_W6lkPKIRkDr99uoX4T7qGDVtVC5WdFJAw5Iw3MtU7JmSFnxetkg_AxfmvG720Bw1pvCKzHvjM-7jBKSbafttQW4moCq_1xfkXMYX4jJlfHl8fPXzx8_wnJN26jl1286EShztpGuTy1xSI52zIHTcbHRG2FiMSBNYtQn-lHnb0p-s2nGmDE6pxcCitXS8JHi8B0ONWfpHOJav6tNbYx0WxLSPVZz6VZfIHVqZgQB3eVyK6hHe4dNeZfOuKaAjrfK58iY2xnpOIOu6w_u3lfw4OzKt1ApoAa4bg83bSJAW7-RHL2KpxPTxpFpOgLBaY9F3kcTptXzK7Bp4_IgnQ34zacJlvz5WvPDNxfop5crylSpYv6j-jIRilZrTg9PM1MiJbyeZ66IVDOCl-eRmrQTwfhRjYqdWi0HLz_hkcsf0pqdosTwRh1Vp2p2jO35kVEDDPJJf8eRcpunlci3EESSU5V__a_5mqp8Uf1fy8fXK5b6NLJZO-t6T0V7tkvnf8qtyyHe9iX_xewe-2p3MCpCLJ_-y3_jQoXAKIb5Is-chQrBjXtObOTkAMNHgC18w6HZ_FlCI9ic0isfixRpkqp0VYdCvpPMsFVYddnnRvXfsInvmofE-IEk_a0RpvQ8ngU0GvMoahYNUQNJQStz7nmTUC6Vy8PRWs01oabRlu7GcZn8kxVECXKgd9Okfo7XUan6k9DHb4fyQRUcm14dEwO3Z9yXhyOaRNNjKixUlcdwO4w_e3lZm32-FNfo7Atr22bHtnRDAYsfwv5gjgQfXwsLC1tBV8ENdgn7suklHBzmEjgBZrYISUM1ki3OE5OZhtd6-RWUszSNVrxuLqNZGxogrS72cB9ZFD7-O-OffwGDwfspLgYAAA==.eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly9XQUJJLUJSQVpJTC1TT1VUSC1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldCIsImV4cCI6MTczMjUxNTg0OCwiYWxsb3dBY2Nlc3NPdmVyUHVibGljSW50ZXJuZXQiOnRydWV9",
+        "H4sIAAAAAAAEAB2UxQ70hhaD3-XfplKYKnUR5gnjLsycTKC6735H3VtH9qdj__vHSp9hTos_f_8RKEzub1-jVu26AaUjKHqF3bxmXRIP4JW-B_D263yZQSb7hAERMGUc8qt2ax3fRrQqT7NEfqKqRbtiuMyafm9F1GQXqmmPbhlandS-omTGfYSxn7rQIk8oeSCOcvaIEY2uCg8R8-Ze6jqRAiI7Teb9s-Yfj7A6KkuCyhLMp5j6oH5wwlniwWm7nIcn01ibKAUCThLL9PU9Pj0lIMSJgC3dvbqiZV2Xw9T458Dlbiw3NQ47zZ6EWyAsoTbohTe55AThRMbbKGbSgG_dD8Nnqj63np4xtcJSip6GlNxh8KUVoGxizJffb4FfUY2OlBNtsudWkjOQefBzq9yQTQdxLNLoYWXaLrDkVP0QBwLqS5UQRkcx3fUlUTKPv8e4yL2zlgOAdhFID1mdInQ-V0mz88uUfpBeKy9EIMAg8lHg5KbKhWPd_bKBnWy-j0tY9pb3bH9i7LVud89VAXA3RSoR28yIcdyLdgBRLkWybQKvE9IeQoni4rQ2D69QwfJjIhykyB0QLs4dRc6B_KGZRMck5fDKjx1DakMReKeQ2KVzBFqZaiEz32OhEQB0fWWkFb0g4nJtj93poczrNLhVZmY8qyBBW6uO6084A6iHOI1CeDNryfD3tnb5i-UvzQV06hSgVSDfivQsUnM7amc7LzTHJRY-5rCnY6IBDJ7kwVWly6hfDUbDKGlrygRZ1RqznLtRmmKAE3rCrCqkZG3kV3wp83q-ZcUXpN9dA9gCOAXlp_a1GVY65Y1fbE7ADhjO693NWHaB5zBosIpUPErZsSgU6cyc-jNRwty2S7bBL7dynywZVVDUhX_-_PWH257lmLXy-VUn_VyUC4UsD7vpoMIEax6Yea3pLNLHcZkgdH_XaQBV40XcFWTE82SRUbevItWFfglMLL_4ozxTtLiDIpYA5UgRJrl2g4pghgipVhV7R3gfWwCXb6LKBrpvRDEiiC_GYcqQtgSQ3u-u5xhg9KDwoPhTsVKnq4P2bl0X528vu-UMVPAZ22WagYrlEJz6Pew9-4i5J60waQWZ4NeQ3Eh6Urpz92VldWnYDUjRcJR4Eh-f9ykXaA11JOgXtbCx7GavlhvpNt30vsrQ2ofWkWlsNOfB18srurTSxvsNQFy0rQE4OYA0MCsyumm_RXKt8TuS7ZgDXAc2r4TmQy7vVu8ZLhj7U_3Pf5ifpSk3JfhRBqWZ2RU5tpxjAgb5GUX70Zj_VG5bT-lxbuVPpo2ctSqDazkgE9MoYJe_BPIWD9K75RD2vO1-GfDH5zNgQMCyRMmwagY3UkzgSS8tPVJIElv5CS9dlO8V15om_BowOdGpHQ8blpoKblgVMIKc0X0O1I_schbngiN5JfQMINWY0GCHeXvDKc6c0hIWwHAhcuwadH2sCDe3yp1WEstn5KyunUWm22JMoKYGSqmdq3PNF2uyJWMZPxKR2ZV2Vbpf46k7-hDW7iC3onvs-2du6wnuaxcOnKfX7_lhNDEHOuyVJwubby076A1xA9JzXrdp_Fh76fXd7Lhml_Us0MVyjHcydNqL5GtSdr9Qf6PsYVZ0-YPwvC_EmkmZzD0KRsn1w_y__wPe9YuwLgYAAA==.eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly9XQUJJLUJSQVpJTC1TT1VUSC1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldCIsImV4cCI6MTczNDA0Mzc4NywiYWxsb3dBY2Nlc3NPdmVyUHVibGljSW50ZXJuZXQiOnRydWV9"
     );
     const [embed, setEmbed] = useState<Embed>();
     const [filterOpen, setFilterOpen] = useState(false);
+    const [updateToken, setUpdateToken] = useState(false);
     const [pVariable, setPVariable] = useState(pVariables[0]);
     const [city, setCity] = useState<string>(cities[0]);
     const [reportConfig, setReportConfig] = useState<models.IReportEmbedConfiguration>({
@@ -116,12 +117,18 @@ export const Report: FC = () => {
         [ pVariable, city ]
     )
 
+    useEffect(
+        () => {
+            setUpdateToken(true);
+        },
+        [ reportToken ]
+    )
+
     async function updateReportToken() {
-        setReportConfig({
-            ...reportConfig,
-            accessToken: reportToken,
-        });
+        embed?.setAccessToken(reportToken)
         embed?.configChanged(true);
+        embed?.reload();
+        setUpdateToken(false);
     }
 
     return (
@@ -130,9 +137,18 @@ export const Report: FC = () => {
                 <Button
                     onClick={ () => setFilterOpen(true) }
                     variant="text"
-                    className={ styles.filterOpen }
-                    endIcon={ <KeyboardArrowRightIcon /> }>
-                    Filtros
+                    sx={{
+                        color: "var(--main-accent-color)",
+                        width: "min-content",
+                        minWidth: "min-content",
+                        padding: '0',
+                    }}
+                    className={ styles.filterOpen }>
+                    <KeyboardArrowRightIcon sx={{
+                        strokeWidth: '2px',
+                        stroke: 'var(--main-accent-color)',
+                        fontSize: '3em',
+                    }} />
                 </Button>
             </Box>
             <Drawer
@@ -184,6 +200,7 @@ export const Report: FC = () => {
                         <TextField value={reportToken} onChange={changeToken}></TextField>
                         <Button
                             variant="contained"
+                            disabled={!updateToken}
                             startIcon={ <UpdateIcon /> }
                             className={ styles.updateBut }
                             onClick={ updateReportToken }
