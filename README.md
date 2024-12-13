@@ -41,6 +41,8 @@ yarn start # Inicializa o servidor de páginas da interface web
 ```
 _Para a execução do código é necessário que o pacote `node.js` esteja instalado e configurado na máquina, junto com seu componente `yarn`_
 
+O acesso a interface será realizado pelo [link local](http://localhost:3000 "link") na máquina onde o serviço está rodando, ou em qualquer máquina da rede local pelo IP local da máquina usando a mesma porta.
+
 ## Token de acesso _Power BI_
 Para acessar a interface do _Power BI_, é necessário um _token_ atualizado, esse durando no máximo 24h. Caso o _token_ padrão esteja desatualizado, basta acessar o [link de gerenciamento de _token_ da Microsoft](https://learn.microsoft.com/en-us/rest/api/power-bi/embed-token/generate-token#code-try-0 "Link de atualização de token"), acessar sua conta (considerando que tenha nessa acesso a uma cópia do projeto do projeto _Power BI_ que também está presente nessa pasta) e gerar um _token_ com o seguinte corpo de requisição:
 
