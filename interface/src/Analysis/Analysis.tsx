@@ -57,6 +57,7 @@ export const Analysis: FC = () => {
     }, [ estado ])
 
     function setupInfo() {
+        setInfo(false);
         if (stationData?.[estado]?.[coluna]?.[infoValues[0]]) {
             setInfo(true);
             return;
@@ -79,7 +80,7 @@ export const Analysis: FC = () => {
         });
     }
 
-    useEffect(() => setInfo(true), [ stationData ])
+    useEffect(() => setInfo(stationData[estado] !== undefined), [ stationData ])
 
     useEffect(() => {
         if (!colunas.length)
@@ -90,12 +91,12 @@ export const Analysis: FC = () => {
 
     useEffect(() => {
         if (!coluna.length)
-            return
+            return;
         setupInfo();
     }, [ coluna ])
 
     async function loadColumns() {
-        setColuna('');
+        setColunas([]);
         setInfo(false);
         axios
             .get(`${apiBaseUrl}/analise/${estado}/columns`)
@@ -120,7 +121,6 @@ export const Analysis: FC = () => {
     useEffect(
         () => {
             setImgLoading(true);
-            setInfo(false);
         }, [
             estado,
             coluna,
