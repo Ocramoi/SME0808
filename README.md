@@ -51,7 +51,7 @@ Para acessar a interface do _Power BI_, é necessário um _token_ atualizado, es
 }
 ```
 
-_(Para o usuário `mardt@usp.br` o código de acesso é o seguinte:_
+_Para o usuário `mardt@usp.br` o código de acesso é o seguinte:_
 ```
 {
     "datasets": [{ "id": "9a4f218b-573d-4985-a505-10081217f810", "xmlaPermission": "ReadOnly" }],
