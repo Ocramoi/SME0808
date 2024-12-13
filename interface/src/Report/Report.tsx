@@ -1,4 +1,4 @@
-import { FC, useEffect, useState, ChangeEvent } from 'react';
+import { FC, useEffect, useState, ChangeEvent, ClipboardEvent } from 'react';
 import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField, Button, Drawer } from '@mui/material';
 import UpdateIcon from '@mui/icons-material/Update';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
@@ -21,11 +21,11 @@ export const Report: FC = () => {
               'Rio de Janeiro - RJ',
               'Salvador - BA',
           ],
-          reportUrl = `https://app.powerbi.com/reportEmbed?reportId=${reportId}`;
+          reportUrl = `https://app.powerbi.com/reportEmbed?reportId=${reportId}`,
+          tokenCookie = "powerbiToken";
 
-    const [reportToken, setReportToken] = useState(
-        "H4sIAAAAAAAEAB2UxQ70hhaD3-XfplKYKnUR5gnjLsycTKC6735H3VtH9qdj__vHSp9hTos_f_8RKEzub1-jVu26AaUjKHqF3bxmXRIP4JW-B_D263yZQSb7hAERMGUc8qt2ax3fRrQqT7NEfqKqRbtiuMyafm9F1GQXqmmPbhlandS-omTGfYSxn7rQIk8oeSCOcvaIEY2uCg8R8-Ze6jqRAiI7Teb9s-Yfj7A6KkuCyhLMp5j6oH5wwlniwWm7nIcn01ibKAUCThLL9PU9Pj0lIMSJgC3dvbqiZV2Xw9T458Dlbiw3NQ47zZ6EWyAsoTbohTe55AThRMbbKGbSgG_dD8Nnqj63np4xtcJSip6GlNxh8KUVoGxizJffb4FfUY2OlBNtsudWkjOQefBzq9yQTQdxLNLoYWXaLrDkVP0QBwLqS5UQRkcx3fUlUTKPv8e4yL2zlgOAdhFID1mdInQ-V0mz88uUfpBeKy9EIMAg8lHg5KbKhWPd_bKBnWy-j0tY9pb3bH9i7LVud89VAXA3RSoR28yIcdyLdgBRLkWybQKvE9IeQoni4rQ2D69QwfJjIhykyB0QLs4dRc6B_KGZRMck5fDKjx1DakMReKeQ2KVzBFqZaiEz32OhEQB0fWWkFb0g4nJtj93poczrNLhVZmY8qyBBW6uO6084A6iHOI1CeDNryfD3tnb5i-UvzQV06hSgVSDfivQsUnM7amc7LzTHJRY-5rCnY6IBDJ7kwVWly6hfDUbDKGlrygRZ1RqznLtRmmKAE3rCrCqkZG3kV3wp83q-ZcUXpN9dA9gCOAXlp_a1GVY65Y1fbE7ADhjO693NWHaB5zBosIpUPErZsSgU6cyc-jNRwty2S7bBL7dynywZVVDUhX_-_PWH257lmLXy-VUn_VyUC4UsD7vpoMIEax6Yea3pLNLHcZkgdH_XaQBV40XcFWTE82SRUbevItWFfglMLL_4ozxTtLiDIpYA5UgRJrl2g4pghgipVhV7R3gfWwCXb6LKBrpvRDEiiC_GYcqQtgSQ3u-u5xhg9KDwoPhTsVKnq4P2bl0X528vu-UMVPAZ22WagYrlEJz6Pew9-4i5J60waQWZ4NeQ3Eh6Urpz92VldWnYDUjRcJR4Eh-f9ykXaA11JOgXtbCx7GavlhvpNt30vsrQ2ofWkWlsNOfB18srurTSxvsNQFy0rQE4OYA0MCsyumm_RXKt8TuS7ZgDXAc2r4TmQy7vVu8ZLhj7U_3Pf5ifpSk3JfhRBqWZ2RU5tpxjAgb5GUX70Zj_VG5bT-lxbuVPpo2ctSqDazkgE9MoYJe_BPIWD9K75RD2vO1-GfDH5zNgQMCyRMmwagY3UkzgSS8tPVJIElv5CS9dlO8V15om_BowOdGpHQ8blpoKblgVMIKc0X0O1I_schbngiN5JfQMINWY0GCHeXvDKc6c0hIWwHAhcuwadH2sCDe3yp1WEstn5KyunUWm22JMoKYGSqmdq3PNF2uyJWMZPxKR2ZV2Vbpf46k7-hDW7iC3onvs-2du6wnuaxcOnKfX7_lhNDEHOuyVJwubby076A1xA9JzXrdp_Fh76fXd7Lhml_Us0MVyjHcydNqL5GtSdr9Qf6PsYVZ0-YPwvC_EmkmZzD0KRsn1w_y__wPe9YuwLgYAAA==.eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly9XQUJJLUJSQVpJTC1TT1VUSC1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldCIsImV4cCI6MTczNDA0Mzc4NywiYWxsb3dBY2Nlc3NPdmVyUHVibGljSW50ZXJuZXQiOnRydWV9"
-    );
+    const [reportToken, setReportToken] = useState(localStorage.getItem(tokenCookie));
+    const [reportKey, setReportKey] = useState(reportToken);
     const [embed, setEmbed] = useState<Embed>();
     const [filterOpen, setFilterOpen] = useState(false);
     const [updateToken, setUpdateToken] = useState(false);
@@ -34,7 +34,7 @@ export const Report: FC = () => {
     const [reportConfig, setReportConfig] = useState<models.IReportEmbedConfiguration>({
         type: 'report',
         embedUrl: reportUrl,
-        accessToken: reportToken,
+        accessToken: reportToken || '',
         id: reportId,
         tokenType: models.TokenType.Embed,
         settings: {
@@ -73,7 +73,13 @@ export const Report: FC = () => {
         setCity(event.target.value);
     }
 
+    function pasteToken(event: ClipboardEvent<HTMLDivElement>) {
+        setUpdateToken(false);
+        setReportToken(event.clipboardData.getData('text'));
+    }
+
     function changeToken(event: ChangeEvent<HTMLInputElement>) {
+        setUpdateToken(false);
         setReportToken(event.target.value);
     }
 
@@ -119,17 +125,38 @@ export const Report: FC = () => {
 
     useEffect(
         () => {
+            if (!reportToken)
+                return;
+            localStorage.setItem(tokenCookie, reportToken!);
             setUpdateToken(true);
         },
         [ reportToken ]
     )
 
     async function updateReportToken() {
-        embed?.setAccessToken(reportToken)
-        embed?.configChanged(true);
-        embed?.reload();
+        if (!reportToken || !reportToken.length)
+            return;
+
+        setReportConfig({
+            ...reportConfig,
+            accessToken: reportToken,
+        });
+        setReportKey(reportToken);
+    }
+
+    async function setupEmbed() {
+        /* console.log("??");
+         * console.log({...embed});
+         * await embed?.setAccessToken(reportToken!)
+         * console.log('a')
+         * embed?.configChanged(true);
+         * console.log('b')
+         * await embed?.reload();
+         * console.log('c') */
         setUpdateToken(false);
     }
+
+    useEffect(() => { setupEmbed() }, [ reportConfig ]);
 
     return (
         <Box className={ styles.report }>
@@ -197,7 +224,7 @@ export const Report: FC = () => {
                     <br />
                     <span><a href="https://learn.microsoft.com/en-us/rest/api/power-bi/embed-token/generate-token#code-try-0">Token de acesso:</a></span>
                     <FormControl fullWidth>
-                        <TextField value={reportToken} onChange={changeToken}></TextField>
+                        <TextField value={reportToken || ''} onChange={changeToken} onPasteCapture={e => pasteToken(e)}></TextField>
                         <Button
                             variant="contained"
                             disabled={!updateToken}
@@ -209,6 +236,7 @@ export const Report: FC = () => {
                 </Box>
             </Drawer>
             <PowerBIEmbed
+                key={ reportKey }
                 embedConfig={ reportConfig }
                 eventHandlers = {
                 new Map([
@@ -223,8 +251,11 @@ export const Report: FC = () => {
                     console.log(`Embedded object of type "${ embedObject.embedtype }" received`);
                     setEmbed(embedObject);
                 }}
-                cssClassName={ styles.reportIframe }
+                cssClassName={ `${styles.reportIframe} ${reportToken ? '' : styles.hide}` }
             />
+            <div className={ styles.reportIframe } style={{ 'display': reportToken ? 'none' : 'inherit' }}>
+                <h3>Token ainda não definido!</h3>
+            </div>
         </Box>
     );
 }

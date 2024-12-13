@@ -5,9 +5,22 @@
     align-items: stretch;
 }
 
+.hide {
+    display: none !important;
+}
+
 .reportIframe {
     /* height: 100vh; */
     flex: 1 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.reportIframe > h3 {
+    height: min-content;
+    font-style: italic;
+    color: var(--main-bg-color);
 }
 
 .filterSidebar {
