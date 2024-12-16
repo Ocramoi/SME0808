@@ -16,6 +16,9 @@ from scipy import stats
 from alive_progress import alive_bar # type: ignore
 from multiprocessing.pool import ThreadPool
 import logging
+from pmdarima import auto_arima
+from statsmodels.tsa.stattools import adfuller
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 
 
 class Analysis:
@@ -192,8 +195,65 @@ class Analysis:
         t = np.array(x)
         coef = Polynomial.fit(t, y, degree).convert().coef
         return np.polyval(coef[::-1], t), coef #type: ignore
+    
+    def __check_stationarity(self, series: pd.Series) -> bool:
+        # Verifica estacionaridade por meio do teste ADF
+        result = adfuller(series)
+        p_value = result[1]
+        return p_value < 0.05
 
-    def serieTemporal(self, attr: str, op: int = 1):
+    def __plot_acf_pacf(self, series: pd.Series) -> None:
+        lags = 40
+        plt.figure(figsize=(12, 6))
+        plot_acf(series, lags=lags)
+        plt.show()
+        plot_pacf(series, lags=lags)
+        plt.show()
+
+    def fit_auto_arima(self, series: pd.Series):
+        # Faz o fit automaticamente de um modelo ARIMA, escolhendo os melhores parametros (p, d, q)
+
+        if not self.__check_stationarity(series):
+            print("Série não estacionária. Aplicando diferenciação...")
+            series = np.diff(series)
+
+        # Fit the auto_arima model
+        model = auto_arima(series, seasonal=False, stepwise=True, trace=True)
+        return model
+    
+    def forecast_auto_arima(self, series: pd.Series, steps: int):
+        model = self.fit_auto_arima(series)
+        forecast = model.predict(n_periods=steps)
+        return forecast
+
+    def serieTemporal(self, attr: str, op: int = 1, forecast_steps=30):
+        self.timeSeries(attr)
+        t, _medias = self.dataMonth[attr] if op == 1 else self.dataDay[attr]
+        medias: np.ndarray = np.array(_medias)
+
+        # Check for stationarity and apply differencing if needed
+        if not self.__check_stationarity(medias):
+            print("Series is non-stationary. Differencing will be applied.")
+            medias = np.diff(medias)
+
+        # Forecast using auto_arima
+        forecast = self.forecast_auto_arima(pd.Series(medias), steps=forecast_steps)
+
+        # Plot the original series and forecasted values
+        forecast_index = np.arange(len(medias), len(medias) + forecast_steps)
+        plt.figure(figsize=(15, 6))
+        plt.plot(t, medias, label="Original Series")
+        plt.plot(forecast_index, forecast, label="Forecast", color='red', linestyle='dashed')
+        plt.title(f"Auto ARIMA Forecast for {attr}")
+        plt.xlabel("Time")
+        plt.ylabel(f"{attr}")
+        plt.legend()
+        plt.grid(True)
+
+        output = io.BytesIO()
+        FigureCanvasAgg(plt.gcf()).print_png(output)
+        return Response(output.getvalue(), status=200, mimetype='image/png')
+        '''
         self.timeSeries(attr)
         t, _medias = self.dataMonth[attr] if op == 1 else self.dataDay[attr]
         medias: np.ndarray = np.array(_medias)
@@ -216,4 +276,6 @@ class Analysis:
             Tt, St,
             "Mês" if op == 1 else "Dia", f"{attr}",
             "Ajuste de Sazonalidade e Tendência"
-        )
+        )'''
+    
+
