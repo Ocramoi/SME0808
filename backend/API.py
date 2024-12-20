@@ -4,9 +4,9 @@ import json
 from flask import  Response
 from typing import Dict, Any
 
-def jsonResponse(data: Any, add: Dict[Any, Any] = {}):
+def jsonResponse(data: Any, add: Dict[Any, Any] = {}, status: int = 200):
     return Response(
         json.dumps({ 'data': data, **add }),
-        status=200,
+        status=status,
         mimetype='application/json'
     )

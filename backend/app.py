@@ -2,7 +2,7 @@
 
 import os
 from typing import Union, Callable, Dict
-from flask import Flask, Response
+from flask import Flask, Response, request
 import pandas as pd
 import ast
 import traceback
@@ -27,6 +27,9 @@ DATAFRAME_FOLDER = os.path.join(os.getcwd(), "data/dataframes")
 
 def preProcess(fileName: str) -> pd.DataFrame:
     df: pd.DataFrame = pd.read_pickle(f"{DATAFRAME_FOLDER}/{fileName}")
+    return preProcessDf(df)
+
+def preProcessDf(df: pd.DataFrame) -> pd.DataFrame:
     df.replace(-9999.0, float('nan'), inplace=True)
     df.drop(columns=[
         "DATA (YYYY-MM-DD)", "HORA (UTC)",
@@ -61,6 +64,23 @@ logger.info("Lendo base de dados...")
 with ThreadPool() as pool:
     pool.map(lambda key: dataRunner(key, *_data[key]), list(_data.keys()))
 logger.info("Base de dados lida!")
+
+@app.route('/upload', methods=['POST'])
+def upload():
+    try:
+        newPkl = request.files['database']
+        sigla = request.form['sigla']
+        estado = request.form['estado']
+        logger.info(f"Nova base de dados: {sigla} - {estado}")
+        df = preProcessDf(pd.read_pickle(newPkl))
+        data[sigla] = Analysis(df, estado)
+        return Response(status=200)
+    except Exception as e:
+        logger.error(e)
+        return jsonResponse({
+            'msg': "Erro no upload",
+            'error': e.__str__()
+        }, status=406)
 
 @app.route('/estados')
 def estados():
