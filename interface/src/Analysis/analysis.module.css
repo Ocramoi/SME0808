@@ -95,6 +95,7 @@
 .analysisGraph {
     width: 100%;
     max-height: 500px;
+    min-width: min(300px, 100vw);
 }
 
 .analysisGraph::before {
@@ -135,7 +136,7 @@
 }
 
 .controlGroup {
-    min-width: min;
+    min-width: min-content;
 }
 
 .pseudoTable {
@@ -168,4 +169,11 @@
 
 .pseudoTable > span:nth-last-child(2), .pseudoTable > span:last-child {
     border-bottom: 2px solid var(--main-bg-color);
+}
+
+.uploadGroup {
+    display: flex;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 5px;
 }

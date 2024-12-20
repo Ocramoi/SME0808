@@ -1,5 +1,10 @@
-import { FC, useEffect, useState, ChangeEvent } from 'react';
-import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField, Button, Drawer, dividerClasses } from '@mui/material';
+import { FC, useEffect, useState } from 'react';
+import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Button, Accordion, AccordionSummary, Typography, AccordionDetails, Input, TextField, Alert } from '@mui/material';
+import { MuiFileInput } from 'mui-file-input';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
+import CheckIcon from '@mui/icons-material/Check';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import styles from './analysis.module.css';
 import axios from 'axios';
 
@@ -22,18 +27,26 @@ interface ufInfo {
 };
 
 export const Analysis: FC = () => {
-    const [estado, setEstado] = useState('');
-    const [estados, setEstados] = useState([{ label: '', value: '' }]);
-    const [coluna, setColuna] = useState('');
-    const [colunas, setColunas] = useState<string[]>([]);
-    const [janela, setJanela] = useState('1');
-    const [imgLoading, setImgLoading] = useState(false);
-    const [info, setInfo] = useState(false);
-    const [stationData, setStationData] = useState<ufInfo>({});
+    const [newEstado, setNewEstado] = useState(''),
+          [newSigla, setNewSigla] = useState(''),
+          [janela, setJanela] = useState('1'),
+          [coluna, setColuna] = useState(''),
+          [estado, setEstado] = useState(''),
+          [alertInfo, setAlertInfo] = useState<{ severity: "info" | "success" | "warning" | "error", text: string } | null>(null),
+          [update, setUpdate] = useState(true),
+          [file, setFile] = useState<File | null>(null),
+          [stationData, setStationData] = useState<ufInfo>({}),
+          [info, setInfo] = useState(false),
+          [imgLoading, setImgLoading] = useState(false),
+          [colunas, setColunas] = useState<string[]>([]),
+          [estados, setEstados] = useState([{ label: '', value: '' }]);
 
     const apiBaseUrl = "http://localhost:5000";
 
     useEffect(() => {
+        if (!update)
+            return;
+
         Promise.all([
             axios
                 .get(`${apiBaseUrl}/estados`)
@@ -43,8 +56,8 @@ export const Analysis: FC = () => {
                .catch(err => {
                    console.error(err);
                    alert("Erro ao obter informações!");
-               });
-    }, []);
+               }).finally(() => setUpdate(false));
+    }, [ update ]);
 
     useEffect(() => {
         setEstado(estados[0].value);
@@ -127,8 +140,44 @@ export const Analysis: FC = () => {
         ]
     );
 
+    function sendDatabase() {
+        setAlertInfo({ severity: "info", text: "Carregando novos dados..." });
+        axios
+            .postForm(`${apiBaseUrl}/upload`, {
+                sigla: newSigla,
+                estado: newEstado,
+                database: file,
+            })
+            .then(() => {
+                setUpdate(true);
+                setAlertInfo({ severity: "success", text: "Dados carregados com sucesso!" });
+                setNewSigla(""); setNewEstado(""); setFile(null);
+            })
+            .catch(err => {
+                console.log(err);
+                setAlertInfo({ severity: "error", text: "Erro ao carregar dados" });
+            });
+    }
+
     return (
         <Box className={ styles.analises }>
+            {
+                alertInfo && (
+                    <Alert
+                        sx={{
+                            position: "fixed",
+                            bottom: "10px",
+                            left: "10px",
+                            zIndex: "99",
+                        }}
+                        severity={ alertInfo.severity! }
+                        onClose={() => setAlertInfo(null)}
+                    >
+                        { alertInfo.text }
+                    </Alert>
+                )
+            }
+
             { !info && (
                   <div className={ styles.loaderContainer }>
                       <div className={ styles.loader }></div>
@@ -179,6 +228,58 @@ export const Analysis: FC = () => {
                             <MenuItem value="2">Dia</MenuItem>
                         </Select>
                     </FormControl>
+
+                    <Accordion
+                        sx={{
+                            borderRadius: '4px',
+                        }}
+                        disableGutters={true}>
+                        <AccordionSummary
+                            expandIcon={<ArrowDropDownIcon />}
+                        >
+                            <Typography color="darkcyan" fontWeight="450">Adicionar dados</Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <FormControl fullWidth className={ styles.controlGroup }>
+                                <TextField
+                                    value={newEstado}
+                                    onChange={e => setNewEstado(e.target.value)}
+                                    label="Nome do estado"
+                                />
+                            </FormControl>
+                            <br /><br />
+
+                            <FormControl fullWidth className={ styles.controlGroup }>
+                                <TextField
+                                    value={newSigla}
+                                    onChange={e => setNewSigla(e.target.value)}
+                                    label="Sigla do estado"
+                                />
+                            </FormControl>
+                            <br /><br />
+
+                            <FormControl fullWidth className={ styles.controlGroup }>
+                                <Box className={ styles.uploadGroup }>
+                                    <InputLabel>{file ? <CheckIcon /> : <AttachFileIcon />} {file ? file.name : "Selecione o arquivo..."}</InputLabel>
+                                    <MuiFileInput
+                                        inputProps={{ accept: '.pkl' }}
+                                        sx={{ flex: '1 1' }}
+                                        onChange={setFile} />
+                                    <Button
+                                        onClick={sendDatabase}
+                                        variant="contained"
+                                        disabled={file == null}
+                                        sx={{
+                                            color: "var(--main-accent-color)",
+                                            flex: "0 0 min-content",
+                                            padding: '0',
+                                        }}>
+                                        <FileUploadIcon />
+                                    </Button>
+                                </Box>
+                            </FormControl>
+                        </AccordionDetails>
+                    </Accordion>
                 </Box>
             </Box>
 
