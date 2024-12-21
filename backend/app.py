@@ -11,6 +11,8 @@ from multiprocessing.pool import ThreadPool
 from alive_progress import alive_bar # type: ignore
 from functools import reduce
 from dotenv import load_dotenv
+import numpy as np
+import pathlib
 
 from API import jsonResponse
 from analysis import Analysis
@@ -25,11 +27,30 @@ logger.setLevel(logging.DEBUG if (os.getenv("ENV") == "dev") else logging.ERROR)
 # consts
 DATAFRAME_FOLDER = os.path.join(os.getcwd(), "data/dataframes")
 
+def substitui_nan_por_distribuicao_normal(df: pd.DataFrame, atributo: str) -> pd.DataFrame:
+    # Calcula a média dos valores não nulos:
+    media = df[atributo].mean()
+    # Calcula a variância dos valores não nulos:
+    variancia = df[atributo].var()
+    # Calcula o desvio padrão doos valores não nulos:
+    desvio_padrao = np.sqrt(variancia)
+    # Gera números aleatórios pertencentes a respectiva distribuição normal:
+    valores_gerados = np.random.normal(loc=media, scale=desvio_padrao, size=len(df[atributo].isna()))
+    # Substitui os NaN pelos número gerados:
+    df.loc[df[atributo].isna(), atributo] = valores_gerados
+    # Retorna o dataframe tratado:
+    return df
+
+
 def preProcess(fileName: str) -> pd.DataFrame:
     df: pd.DataFrame = pd.read_pickle(f"{DATAFRAME_FOLDER}/{fileName}")
     return preProcessDf(df)
 
 def preProcessDf(df: pd.DataFrame) -> pd.DataFrame:
+    df = substitui_nan_por_distribuicao_normal(df, "TEMPERATURA DO AR - BULBO SECO, HORARIA (°C)")
+    df = substitui_nan_por_distribuicao_normal(df, "PRECIPITAÇÃO TOTAL, HORÁRIO (mm)")
+    df = substitui_nan_por_distribuicao_normal(df, "RADIACAO_GLOBAL(Kj/m²)_mod")
+
     df.replace(-9999.0, float('nan'), inplace=True)
     df.drop(columns=[
         "DATA (YYYY-MM-DD)", "HORA (UTC)",
@@ -68,11 +89,12 @@ logger.info("Base de dados lida!")
 @app.route('/upload', methods=['POST'])
 def upload():
     try:
-        newPkl = request.files['database']
+        newFile = request.files['database']
         sigla = request.form['sigla']
         estado = request.form['estado']
         logger.info(f"Nova base de dados: {sigla} - {estado}")
-        df = preProcessDf(pd.read_pickle(newPkl))
+        ext = pathlib.Path(newFile).suffix
+        df = preProcessDf(pd.read_csv(newFile) if ext == '.csv' else pd.read_pickle(newFile))
         data[sigla] = Analysis(df, estado)
         return Response(status=200)
     except Exception as e:

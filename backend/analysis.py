@@ -16,9 +16,13 @@ from scipy import stats
 from alive_progress import alive_bar # type: ignore
 from multiprocessing.pool import ThreadPool
 import logging
-from pmdarima import auto_arima
-from statsmodels.tsa.stattools import adfuller
-from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+from pmdarima import auto_arima # type: ignore
+from statsmodels.tsa.stattools import adfuller # type: ignore
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf # type: ignore
+import sys
+import INMET.medidas_de_associacao_entre_variaveis_quantitativas as mava
+import INMET.geradores_de_sequencias as gseq
+import INMET.verifica
 
 
 class Analysis:
@@ -196,7 +200,7 @@ class Analysis:
         coef = Polynomial.fit(t, y, degree).convert().coef
         return np.polyval(coef[::-1], t), coef #type: ignore
     
-    def __check_stationarity(self, series: pd.Series) -> bool:
+    def __check_stationarity(self, series: np.ndarray) -> bool:
         # Verifica estacionaridade por meio do teste ADF
         result = adfuller(series)
         p_value = result[1]
@@ -210,7 +214,7 @@ class Analysis:
         plot_pacf(series, lags=lags)
         plt.show()
 
-    def fit_auto_arima(self, series: pd.Series):
+    def fit_auto_arima(self, series: np.ndarray):
         # Faz o fit automaticamente de um modelo ARIMA, escolhendo os melhores parametros (p, d, q)
 
         if not self.__check_stationarity(series):
@@ -221,7 +225,7 @@ class Analysis:
         model = auto_arima(series, seasonal=False, stepwise=True, trace=True)
         return model
     
-    def forecast_auto_arima(self, series: pd.Series, steps: int):
+    def forecast_auto_arima(self, series: np.ndarray, steps: int):
         model = self.fit_auto_arima(series)
         forecast = model.predict(n_periods=steps)
         return forecast
@@ -237,7 +241,7 @@ class Analysis:
             medias = np.diff(medias)
 
         # Forecast using auto_arima
-        forecast = self.forecast_auto_arima(pd.Series(medias), steps=forecast_steps)
+        forecast = self.forecast_auto_arima(medias, steps=forecast_steps)
 
         # Plot the original series and forecasted values
         forecast_index = np.arange(len(medias), len(medias) + forecast_steps)
