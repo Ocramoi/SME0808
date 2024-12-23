@@ -19,10 +19,7 @@ import logging
 from pmdarima import auto_arima # type: ignore
 from statsmodels.tsa.stattools import adfuller # type: ignore
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf # type: ignore
-import sys
-import INMET.medidas_de_associacao_entre_variaveis_quantitativas as mava
-import INMET.geradores_de_sequencias as gseq
-import INMET.verifica
+import INMET.metodos_descritivos as mdes # type: ignore
 
 
 class Analysis:
@@ -38,12 +35,12 @@ class Analysis:
         self.estado: str = _estado
         self.dataDay: Dict[str, Tuple[List[int], List[float]]] = {}
         self.dataMonth: Dict[str, Tuple[List[int], List[float]]] = {}
-        self.df = _df
+        self.df = _df.copy()
 
     def getEstado(self) -> str:
         return self.estado
 
-    def size(self) -> int:
+    def size(self, *ignore) -> int:
         return jsonResponse(len(self.df))
 
     def shape(self):
@@ -230,7 +227,8 @@ class Analysis:
         forecast = model.predict(n_periods=steps)
         return forecast
 
-    def serieTemporal(self, attr: str, op: int = 1, forecast_steps=30):
+    def serieTemporal(self, attr: str, op: Union[int, str, None], forecast_steps=30):
+        op = int(op) if op else None
         self.timeSeries(attr)
         t, _medias = self.dataMonth[attr] if op == 1 else self.dataDay[attr]
         medias: np.ndarray = np.array(_medias)
@@ -245,7 +243,8 @@ class Analysis:
 
         # Plot the original series and forecasted values
         forecast_index = np.arange(len(medias), len(medias) + forecast_steps)
-        plt.figure(figsize=(15, 6))
+        fig = plt.figure(figsize=(15, 6), clear=True)
+        fig.patch.set_alpha(0)
         plt.plot(t, medias, label="Original Series")
         plt.plot(forecast_index, forecast, label="Forecast", color='red', linestyle='dashed')
         plt.title(f"Auto ARIMA Forecast for {attr}")
@@ -257,7 +256,9 @@ class Analysis:
         output = io.BytesIO()
         FigureCanvasAgg(plt.gcf()).print_png(output)
         return Response(output.getvalue(), status=200, mimetype='image/png')
-        '''
+
+    def tendencia(self, attr: str, op: Union[int, str, None]):
+        op = int(op) if op else None
         self.timeSeries(attr)
         t, _medias = self.dataMonth[attr] if op == 1 else self.dataDay[attr]
         medias: np.ndarray = np.array(_medias)
@@ -280,6 +281,37 @@ class Analysis:
             Tt, St,
             "Mês" if op == 1 else "Dia", f"{attr}",
             "Ajuste de Sazonalidade e Tendência"
-        )'''
-    
+        )
 
+    def correlograma(self, attr: str, d: Union[int, str, None]) -> Response:
+        d = int(d) if d else None
+        fig = plt.figure(figsize=(15, 6), clear=True)
+        fig.patch.set_alpha(0)
+        mdes.plota_correlograma(self.df.shape[0], self.df[attr].to_numpy(), d)
+        output = io.BytesIO()
+        FigureCanvasAgg(fig).print_png(output)
+        return Response(output.getvalue(), status=200, mimetype='image/png')
+
+    def multiCorr(self, attr: str, _d: Union[int, str]) -> Response:
+        d: int = int(_d)
+        fig = plt.figure(figsize=(15, 6), clear=True)
+        fig = mdes.plota_grafico_de_multiplos_graficos_de_defasagens(self.df.shape[0], self.df[attr].to_numpy(), d) or fig
+        fig.patch.set_alpha(0)
+        output = io.BytesIO()
+        FigureCanvasAgg(fig).print_png(output)
+        return Response(output.getvalue(), status=200, mimetype='image/png')
+
+    def sazonalidadeEstacoes(self, attr: str) -> Response:
+        fig = plt.figure(figsize=(15, 6), clear=True)
+        fig.patch.set_alpha(0)
+        mdes.plota_grafico_de_sazonalidade_de_estacoes_do_ano(self.df, "Date_mod", attr)
+        output = io.BytesIO()
+        FigureCanvasAgg(fig).print_png(output)
+        return Response(output.getvalue(), status=200, mimetype='image/png')
+
+    def sazonalidadeGeral(self, attr: str) -> Response:
+        fig = mdes.plota_grafico_de_sazonalidade_geral(self.df, "Date_mod", attr)
+        fig.patch.set_alpha(0)
+        output = io.BytesIO()
+        FigureCanvasAgg(fig).print_png(output)
+        return Response(output.getvalue(), status=200, mimetype='image/png')

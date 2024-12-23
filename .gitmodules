@@ -1,0 +1,3 @@
+[submodule "backend/INMET"]
+	path = backend/INMET
+	url = git@github.com:Ocramoi/INMET.git
